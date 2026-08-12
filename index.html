@@ -1,0 +1,625 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Vijayan Shinde — Data Analyst</title>
+<meta name="description" content="Vijayan Shinde — Data Analyst. Prediction, optimization, and decision-making from data.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#F5F6F3;
+    --paper-2:#EDEFEA;
+    --card:#FFFFFF;
+    --ink:#12171C;
+    --muted:#5B6560;
+    --line:#DBDFDA;
+    --predicted:#1F6F63;
+    --predicted-deep:#123F38;
+    --actual:#C1892E;
+    --predicted-soft: rgba(31,111,99,0.08);
+    --actual-soft: rgba(193,137,46,0.10);
+    --radius: 4px;
+    --maxw: 960px;
+    --shadow-sm: 0 1px 2px rgba(18,23,28,0.05);
+    --shadow-md: 0 18px 40px -18px rgba(18,23,28,0.28);
+    --shadow-lg: 0 30px 60px -24px rgba(18,23,28,0.35);
+  }
+
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0;
+    background:var(--paper);
+    color:var(--ink);
+    font-family:'IBM Plex Sans', sans-serif;
+    font-size:16px;
+    line-height:1.6;
+    -webkit-font-smoothing:antialiased;
+    position:relative;
+  }
+  ::selection{ background:var(--predicted); color:var(--paper); }
+  a{ color:inherit; }
+  a:focus-visible, button:focus-visible{ outline:2px solid var(--predicted); outline-offset:3px; }
+  img{ max-width:100%; display:block; }
+
+  .grain{
+    pointer-events:none; position:fixed; inset:0; z-index:60; opacity:0.035; mix-blend-mode:multiply;
+    background-image:url("data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+
+  .wrap{ max-width:var(--maxw); margin:0 auto; padding:0 24px; }
+
+  /* ---------- NAV ---------- */
+  header.topbar{
+    position:sticky; top:0; z-index:20;
+    background:rgba(245,246,243,0.86);
+    backdrop-filter:blur(8px);
+    border-bottom:1px solid var(--line);
+  }
+  .topbar-inner{ max-width:var(--maxw); margin:0 auto; padding:16px 24px; display:flex; justify-content:space-between; align-items:center; }
+  .brand{ font-family:'Space Grotesk', sans-serif; font-weight:600; font-size:15px; letter-spacing:0.01em; }
+  nav.links{ display:flex; gap:24px; font-size:13px; font-family:'IBM Plex Mono', monospace; }
+  nav.links a{ text-decoration:none; color:var(--muted); transition:color .15s ease; position:relative; padding-bottom:3px; }
+  nav.links a::after{ content:""; position:absolute; left:0; right:100%; bottom:0; height:1.5px; background:var(--predicted); transition:right .25s ease; }
+  nav.links a:hover{ color:var(--ink); }
+  nav.links a.active{ color:var(--ink); }
+  nav.links a.active::after{ right:0; }
+
+  /* ---------- HERO ---------- */
+  .hero{ padding:88px 0 56px; position:relative; overflow:hidden; }
+  .hero::before, .hero::after{
+    content:""; position:absolute; border-radius:50%; filter:blur(70px); z-index:-1;
+    animation:drift 20s ease-in-out infinite alternate;
+  }
+  .hero::before{ width:400px; height:400px; background:var(--predicted); opacity:0.25; top:-160px; right:-120px; }
+  .hero::after{ width:320px; height:320px; background:var(--actual); opacity:0.18; bottom:-160px; left:-100px; animation-delay:-10s; }
+  @keyframes drift{ from{ transform:translate(0,0) scale(1); } to{ transform:translate(-24px, 26px) scale(1.1); } }
+
+  .hero-grid{
+    display:grid; grid-template-columns:1.3fr 0.9fr; gap:48px; align-items:center;
+  }
+  .hero-photo-wrap{
+    position:relative; justify-self:end;
+  }
+  .hero-photo{
+    width:100%; max-width:280px; aspect-ratio:4/5; object-fit:cover;
+    border-radius:8px; box-shadow:var(--shadow-lg);
+    border:1px solid var(--line);
+  }
+  .hero-photo-ring{
+    position:absolute; inset:-14px; border-radius:12px;
+    background:linear-gradient(135deg, var(--predicted), var(--actual));
+    z-index:-1; opacity:0.35;
+  }
+  .hero-photo-tag{
+    position:absolute; bottom:-16px; left:-16px;
+    background:var(--card); border:1px solid var(--line); border-radius:var(--radius);
+    padding:9px 13px; box-shadow:var(--shadow-md);
+    font-family:'IBM Plex Mono', monospace; font-size:11.5px; color:var(--muted);
+    display:flex; align-items:center; gap:7px;
+  }
+  .hero-photo-tag .dot{ width:6px; height:6px; border-radius:50%; background:var(--predicted); }
+
+  .eyebrow{
+    font-family:'IBM Plex Mono', monospace; font-size:12.5px; letter-spacing:0.08em; text-transform:uppercase;
+    color:var(--muted); margin:0 0 18px; display:flex; align-items:center; gap:10px;
+  }
+  .eyebrow .dot{ width:6px; height:6px; border-radius:50%; background:var(--predicted); display:inline-block; box-shadow:0 0 0 4px var(--predicted-soft); }
+
+  h1.title{
+    font-family:'Space Grotesk', sans-serif; font-weight:600; font-size:clamp(32px, 5vw, 50px);
+    line-height:1.08; margin:0 0 20px; letter-spacing:-0.015em;
+  }
+  .title .accent{ background:linear-gradient(100deg, var(--predicted), var(--predicted-deep)); -webkit-background-clip:text; background-clip:text; color:transparent; }
+
+  p.lede{ font-size:clamp(16px, 1.6vw, 18px); color:var(--muted); max-width:52ch; margin:0 0 28px; }
+
+  .hero-motif{ margin-top:4px; }
+  .hero-motif svg{ display:block; width:100%; height:auto; max-width:420px; }
+  .hero-motif polyline{ transition:stroke-dashoffset 1.8s cubic-bezier(.16,.84,.44,1); }
+  .legend{ display:flex; gap:24px; margin-top:12px; font-family:'IBM Plex Mono', monospace; font-size:12px; color:var(--muted); }
+  .legend span{ display:inline-flex; align-items:center; gap:7px; }
+  .swatch{ width:14px; height:3px; display:inline-block; }
+  .swatch.predicted{ background:var(--predicted); }
+  .swatch.actual{ background:var(--actual); }
+
+  .cta-row{ display:flex; gap:14px; margin-top:32px; flex-wrap:wrap; }
+  .btn{
+    font-family:'IBM Plex Mono', monospace; font-size:13px; padding:12px 20px;
+    border:1px solid var(--ink); border-radius:var(--radius); text-decoration:none; color:var(--ink);
+    transition:background .15s ease, color .15s ease, transform .15s ease, box-shadow .15s ease; display:inline-block;
+  }
+  .btn.primary{ background:var(--ink); color:var(--paper); }
+  .btn.primary:hover{ background:var(--predicted); border-color:var(--predicted); transform:translateY(-2px); box-shadow:var(--shadow-md); }
+  .btn:not(.primary):hover{ background:var(--paper-2); transform:translateY(-2px); }
+
+  .ticker{
+    margin-top:48px; overflow:hidden; border-top:1px solid var(--line); border-bottom:1px solid var(--line); padding:14px 0;
+    -webkit-mask-image:linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent);
+    mask-image:linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent);
+  }
+  .ticker-track{ display:flex; gap:44px; width:max-content; animation:ticker 24s linear infinite;
+    font-family:'IBM Plex Mono', monospace; font-size:12.5px; color:var(--muted); letter-spacing:0.05em; text-transform:uppercase; }
+  .ticker-track span{ white-space:nowrap; }
+  @keyframes ticker{ from{transform:translateX(0);} to{transform:translateX(-50%);} }
+
+  /* ---------- ambient data-bars divider ---------- */
+  .bars-divider{ display:flex; align-items:flex-end; gap:5px; height:44px; margin:0 0 8px; opacity:0.5; }
+  .bars-divider i{ display:block; width:5px; background:linear-gradient(180deg, var(--predicted), var(--actual)); border-radius:2px 2px 0 0; opacity:0.55; }
+
+  /* ---------- SECTION SHELL ---------- */
+  section{ padding:58px 0; border-top:1px solid var(--line); }
+  section:first-of-type{ border-top:none; }
+  .section-head{ display:flex; align-items:baseline; justify-content:space-between; margin-bottom:36px; gap:16px; flex-wrap:wrap; }
+  h2.section-title{ font-family:'Space Grotesk', sans-serif; font-size:22px; font-weight:600; margin:0; }
+  .section-num{ font-family:'IBM Plex Mono', monospace; font-size:12px; color:var(--muted); }
+
+  /* ---------- ABOUT ---------- */
+  .about-text{ max-width:64ch; color:var(--ink); }
+  .about-text p{ margin:0 0 16px; }
+  .about-text .muted{ color:var(--muted); }
+
+  /* ---------- WORK ---------- */
+  .project{
+    border:1px solid var(--line); border-radius:var(--radius); padding:28px 28px 26px; margin-bottom:20px;
+    background:var(--card); opacity:0; transform:translateY(14px);
+    transition:opacity .6s ease, transform .6s ease, box-shadow .25s ease, border-color .25s ease;
+    display:grid; grid-template-columns:1fr 150px; gap:24px;
+  }
+  .project.in{ opacity:1; transform:none; }
+  .project.in:hover{ transform:translateY(-5px); box-shadow:var(--shadow-md); border-color:var(--predicted); }
+  .project-main{ min-width:0; }
+  .project-visual{ display:flex; flex-direction:column; align-items:center; justify-content:center; gap:8px; text-align:center; }
+
+  .project-head{ display:flex; justify-content:space-between; align-items:flex-start; gap:16px; margin-bottom:6px; flex-wrap:wrap; }
+  .project-title{ font-family:'Space Grotesk', sans-serif; font-weight:600; font-size:18px; margin:0; }
+  .project-meta{ font-family:'IBM Plex Mono', monospace; font-size:12px; color:var(--muted); white-space:nowrap; }
+  .project-org{ color:var(--muted); font-size:13.5px; margin:0 0 16px; }
+  .project ul{ margin:0 0 18px; padding-left:18px; }
+  .project li{ margin-bottom:7px; font-size:14.5px; }
+  .project li::marker{ color:var(--predicted); }
+  .stack{ font-family:'IBM Plex Mono', monospace; font-size:12px; color:var(--muted); }
+  .stack b{ color:var(--ink); font-weight:500; }
+
+  /* gauge */
+  .gauge{ position:relative; width:110px; height:110px; }
+  .gauge svg{ transform:rotate(-90deg); }
+  .gauge-track{ fill:none; stroke:var(--line); stroke-width:8; }
+  .gauge-fill{ fill:none; stroke:var(--predicted); stroke-width:8; stroke-linecap:round; transition:stroke-dashoffset 1.4s cubic-bezier(.16,.84,.44,1); }
+  .gauge-value{ position:absolute; inset:0; display:flex; align-items:center; justify-content:center; flex-direction:column; }
+  .gauge-num{ font-family:'IBM Plex Mono', monospace; font-weight:500; font-size:19px; color:var(--ink); }
+  .gauge-label{ font-family:'IBM Plex Mono', monospace; font-size:9.5px; color:var(--muted); text-transform:uppercase; letter-spacing:0.04em; margin-top:2px; text-align:center; }
+
+  /* compare bars */
+  .compare{ width:100%; }
+  .compare-row{ display:flex; align-items:center; gap:8px; margin-bottom:9px; }
+  .compare-label{ font-family:'IBM Plex Mono', monospace; font-size:10.5px; color:var(--muted); width:38px; flex-shrink:0; }
+  .compare-track{ flex:1; height:8px; background:var(--paper-2); border-radius:4px; overflow:hidden; }
+  .compare-fill{ height:100%; border-radius:4px; width:0; transition:width 1.2s cubic-bezier(.16,.84,.44,1); }
+  .compare-fill.before{ background:var(--muted); }
+  .compare-fill.after{ background:var(--predicted); }
+  .compare-num{ font-family:'IBM Plex Mono', monospace; font-size:11px; color:var(--ink); width:32px; text-align:right; flex-shrink:0; }
+  .compare-title{ font-family:'IBM Plex Mono', monospace; font-size:9.5px; color:var(--muted); text-transform:uppercase; letter-spacing:0.04em; text-align:center; margin-top:4px; }
+
+  /* pipeline diagram */
+  .pipeline{ display:flex; flex-direction:column; align-items:center; gap:6px; }
+  .pipeline-node{
+    font-family:'IBM Plex Mono', monospace; font-size:10px; color:var(--ink);
+    background:var(--predicted-soft); border:1px solid rgba(31,111,99,0.25); border-radius:20px;
+    padding:6px 12px; white-space:nowrap;
+  }
+  .pipeline-arrow{ color:var(--muted); font-size:13px; line-height:1; }
+
+  .stat-row{ display:flex; gap:10px; flex-wrap:wrap; margin-bottom:16px; }
+  .stat{ font-family:'IBM Plex Mono', monospace; font-size:12px; padding:5px 10px; border-radius:var(--radius);
+    background:var(--predicted-soft); color:var(--predicted); border:1px solid rgba(31,111,99,0.22); }
+  .stat.alt{ background:var(--actual-soft); color:#8a611f; border-color:rgba(193,137,46,0.28); }
+
+  @media (max-width:680px){
+    .project{ grid-template-columns:1fr; }
+    .project-visual{ order:-1; flex-direction:row; justify-content:flex-start; }
+  }
+
+  /* ---------- SKILLS ---------- */
+  .skill-grid{ display:grid; grid-template-columns:repeat(auto-fit, minmax(210px,1fr)); gap:16px; }
+  .skill-card{
+    border:1px solid var(--line); border-radius:var(--radius); padding:18px 18px 16px; background:var(--card);
+    transition:border-color .2s ease, transform .2s ease, box-shadow .2s ease;
+  }
+  .skill-card:hover{ border-color:var(--predicted); transform:translateY(-3px); box-shadow:var(--shadow-sm); }
+  .skill-icon{ width:26px; height:26px; margin-bottom:12px; color:var(--predicted); }
+  .skill-card h3{ font-family:'IBM Plex Mono', monospace; font-size:11.5px; letter-spacing:0.06em; text-transform:uppercase;
+    color:var(--muted); margin:0 0 8px; font-weight:500; }
+  .skill-card p{ margin:0; font-size:14px; }
+
+  /* ---------- EDUCATION ---------- */
+  .edu-item{ margin-bottom:22px; padding-left:20px; border-left:2px solid var(--line); position:relative; }
+  .edu-item::before{ content:""; position:absolute; left:-6px; top:4px; width:10px; height:10px; border-radius:50%; background:var(--predicted); border:2px solid var(--paper); }
+  .edu-head{ display:flex; justify-content:space-between; gap:16px; flex-wrap:wrap; }
+  .edu-title{ font-weight:600; font-size:15.5px; }
+  .edu-date{ font-family:'IBM Plex Mono', monospace; font-size:12px; color:var(--muted); }
+  .edu-sub{ color:var(--muted); font-size:13.5px; margin-top:2px; }
+
+  /* ---------- CONTACT / FOOTER ---------- */
+  footer{ padding:58px 0 76px; border-top:1px solid var(--line); position:relative; overflow:hidden; }
+  .contact-title{ font-family:'Space Grotesk', sans-serif; font-size:clamp(24px, 4vw, 34px); font-weight:600; margin:0 0 18px; }
+  .contact-links{ display:flex; gap:22px; flex-wrap:wrap; margin-top:8px; }
+  .contact-links a{ text-decoration:none; font-family:'IBM Plex Mono', monospace; font-size:13.5px;
+    border-bottom:1px solid var(--line); padding-bottom:2px; transition:border-color .15s ease, color .15s ease; }
+  .contact-links a:hover{ border-color:var(--predicted); color:var(--predicted); }
+  .foot-note{ margin-top:44px; font-size:12.5px; color:var(--muted); font-family:'IBM Plex Mono', monospace; }
+
+  @media (prefers-reduced-motion: reduce){
+    html{ scroll-behavior:auto; }
+    .project{ transition:none; opacity:1; transform:none; }
+    .hero::before, .hero::after{ animation:none; }
+    .ticker-track{ animation:none; }
+    .hero-motif polyline{ transition:none; }
+    .gauge-fill, .compare-fill{ transition:none; }
+  }
+
+  @media (max-width:760px){
+    .hero-grid{ grid-template-columns:1fr; }
+    .hero-photo-wrap{ justify-self:start; margin-bottom:8px; }
+    .hero-photo{ max-width:200px; }
+  }
+  @media (max-width:560px){
+    nav.links{ display:none; }
+    .hero{ padding:60px 0 40px; }
+    section{ padding:44px 0; }
+  }
+</style>
+</head>
+<body>
+
+<div class="grain" aria-hidden="true"></div>
+
+<header class="topbar">
+  <div class="topbar-inner">
+    <div class="brand">Vijayan Shinde</div>
+    <nav class="links">
+      <a href="#work" data-nav>Work</a>
+      <a href="#skills" data-nav>Skills</a>
+      <a href="#education" data-nav>Education</a>
+      <a href="#contact" data-nav>Contact</a>
+    </nav>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <!-- ================= HERO ================= -->
+  <section class="hero">
+    <div class="hero-grid">
+      <div>
+        <p class="eyebrow"><span class="dot"></span>Aachen, Germany — Data Analyst</p>
+        <h1 class="title">Turning data into <span class="accent">predictions</span> you can act on.</h1>
+        <p class="lede">MSc student in Data Analytics &amp; Decision Science at RWTH Aachen, completing October 2026. I build models that close the gap between what's predicted and what happens — in pricing, classification, and process design.</p>
+
+        <div class="hero-motif" aria-hidden="true">
+          <svg viewBox="0 0 420 90" preserveAspectRatio="none" role="img">
+            <polyline class="line-predicted" points="0,20 60,38 140,28 220,50 300,36 360,58 420,44"
+                      fill="none" stroke="#1F6F63" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+            <polyline class="line-actual" points="0,70 60,60 140,64 220,55 300,50 360,56 420,49"
+                      fill="none" stroke="#C1892E" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="1 7"/>
+          </svg>
+        </div>
+        <div class="legend">
+          <span><i class="swatch predicted"></i>predicted</span>
+          <span><i class="swatch actual"></i>actual</span>
+        </div>
+
+        <div class="cta-row">
+          <a class="btn primary" href="#work">View selected work</a>
+          <a class="btn" href="mailto:vijayanshinde02@gmail.com">Get in touch</a>
+        </div>
+      </div>
+
+      <div class="hero-photo-wrap">
+        <div class="hero-photo-ring"></div>
+        <img class="hero-photo" src="profile.jpg" alt="Portrait of Vijayan Shinde">
+        <div class="hero-photo-tag"><span class="dot"></span>Available Oct 2026</div>
+      </div>
+    </div>
+
+    <div class="ticker" aria-hidden="true">
+      <div class="ticker-track">
+        <span>Python</span><span>SQL</span><span>Power BI</span><span>Optimization</span><span>Machine Learning</span><span>Forecasting</span><span>Statistical Modeling</span><span>BigQuery</span>
+        <span>Python</span><span>SQL</span><span>Power BI</span><span>Optimization</span><span>Machine Learning</span><span>Forecasting</span><span>Statistical Modeling</span><span>BigQuery</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= ABOUT ================= -->
+  <section id="about">
+    <div class="bars-divider" aria-hidden="true">
+      <i style="height:60%"></i><i style="height:85%"></i><i style="height:40%"></i><i style="height:100%"></i><i style="height:55%"></i><i style="height:75%"></i><i style="height:30%"></i><i style="height:90%"></i><i style="height:50%"></i><i style="height:65%"></i>
+    </div>
+    <div class="section-head">
+      <h2 class="section-title">About</h2>
+      <span class="section-num">01</span>
+    </div>
+    <div class="about-text">
+      <p>I started in SAP ABAP development, customizing business processes end to end, before moving into data analytics at Infosys, where I spent over two years building pipelines, dashboards, and reporting systems that businesses actually relied on. That shift, from configuring systems to modeling what happens inside them, is what pulled me toward analytics.</p>
+      <p>Since then I've worked across pricing optimization, classification modeling, and thermal process simulation — different domains, same underlying interest: <span class="muted">reducing the distance between a prediction and reality, so decisions can be made with confidence.</span></p>
+      <p class="muted">Alongside my degree, I'm part of the Quant Team at the Aachen Investment Club, and I studied the CFA Level I curriculum out of genuine interest in financial markets.</p>
+    </div>
+  </section>
+
+  <!-- ================= WORK ================= -->
+  <section id="work">
+    <div class="section-head">
+      <h2 class="section-title">Selected Work</h2>
+      <span class="section-num">02</span>
+    </div>
+
+    <article class="project" data-reveal>
+      <div class="project-main">
+        <div class="project-head">
+          <h3 class="project-title">Dynamic Pricing Under Inventory Constraints</h3>
+          <span class="project-meta">03.2025 – 08.2025</span>
+        </div>
+        <p class="project-org">R&amp;D Project with Vodafone GmbH · Düsseldorf</p>
+        <div class="stat-row">
+          <span class="stat">~85% forecast accuracy</span>
+          <span class="stat alt">10,000+ scenarios evaluated</span>
+        </div>
+        <ul>
+          <li>Designed and implemented a primal-dual optimization algorithm for pricing under inventory constraints.</li>
+          <li>Built ML models for demand estimation to support pricing strategy and experimentation.</li>
+          <li>Ran controlled scenario testing to statistically evaluate strategies against an optimal benchmark.</li>
+        </ul>
+        <p class="stack">Stack: <b>Python</b> · Optimization · ML Forecasting</p>
+      </div>
+      <div class="project-visual">
+        <div class="gauge" data-gauge="90">
+          <svg width="110" height="110" viewBox="0 0 110 110">
+            <circle class="gauge-track" cx="55" cy="55" r="46"></circle>
+            <circle class="gauge-fill" cx="55" cy="55" r="46" stroke-dasharray="289" stroke-dashoffset="289"></circle>
+          </svg>
+          <div class="gauge-value"><span class="gauge-num">90%</span><span class="gauge-label">of optimal</span></div>
+        </div>
+        <p class="compare-title">Pricing efficiency</p>
+      </div>
+    </article>
+
+    <article class="project" data-reveal>
+      <div class="project-main">
+        <div class="project-head">
+          <h3 class="project-title">Underachiever Detection in Workforce Productivity</h3>
+          <span class="project-meta">12.2024 – 02.2025</span>
+        </div>
+        <p class="project-org">Academic Project · RWTH Aachen University</p>
+        <div class="stat-row">
+          <span class="stat">9 models benchmarked</span>
+        </div>
+        <ul>
+          <li>Benchmarked 9 classification algorithms end to end — Naive Bayes, SVM, LDA/QDA, Logistic Regression.</li>
+          <li>Chose recall as the target metric: missing an underperforming case is costlier than a false alarm.</li>
+          <li>Improved performance through forward stepwise feature selection and stratified cross-validation, addressing class imbalance and multicollinearity along the way.</li>
+        </ul>
+        <p class="stack">Stack: <b>Python</b> · scikit-learn · Statistical Modeling</p>
+      </div>
+      <div class="project-visual">
+        <div class="compare">
+          <div class="compare-row">
+            <span class="compare-label">Before</span>
+            <span class="compare-track"><span class="compare-fill before" data-width="68"></span></span>
+            <span class="compare-num">0.68</span>
+          </div>
+          <div class="compare-row">
+            <span class="compare-label">After</span>
+            <span class="compare-track"><span class="compare-fill after" data-width="73"></span></span>
+            <span class="compare-num">0.73</span>
+          </div>
+        </div>
+        <p class="compare-title">Recall score</p>
+      </div>
+    </article>
+
+    <article class="project" data-reveal>
+      <div class="project-main">
+        <div class="project-head">
+          <h3 class="project-title">Thermal Modeling of TMT Rebar Water-Quenching</h3>
+          <span class="project-meta">10.2021 – 04.2022</span>
+        </div>
+        <p class="project-org">Research &amp; Development · Polaad Steel</p>
+        <div class="stat-row">
+          <span class="stat">solver matched Excel to 5×10⁻⁴°C</span>
+        </div>
+        <ul>
+          <li>Reverse-engineered an Excel finite-difference thermal model into a validated Python solver.</li>
+          <li>Ran a Latin hypercube parameter sweep and built gradient-boosted surrogate models with inverse-design capability.</li>
+          <li>Translated simulation output into Power BI dashboards for non-technical stakeholders.</li>
+        </ul>
+        <p class="stack">Stack: <b>Python</b> · Numerical Methods · Surrogate Modeling</p>
+      </div>
+      <div class="project-visual">
+        <div class="gauge" data-gauge="97.5">
+          <svg width="110" height="110" viewBox="0 0 110 110">
+            <circle class="gauge-track" cx="55" cy="55" r="46"></circle>
+            <circle class="gauge-fill" cx="55" cy="55" r="46" stroke-dasharray="289" stroke-dashoffset="289"></circle>
+          </svg>
+          <div class="gauge-value"><span class="gauge-num">.975</span><span class="gauge-label">R² score</span></div>
+        </div>
+        <p class="compare-title">Surrogate model fit</p>
+      </div>
+    </article>
+
+    <article class="project" data-reveal>
+      <div class="project-main">
+        <div class="project-head">
+          <h3 class="project-title">Analytics &amp; Reporting Systems</h3>
+          <span class="project-meta">04.2022 – 08.2024</span>
+        </div>
+        <p class="project-org">Data Analytics · Infosys Limited, Pune</p>
+        <ul>
+          <li>Owned end-to-end analytics workflows, from data sourcing to dashboarding, supporting operational decisions.</li>
+          <li>Built automated ETL pipelines in Google BigQuery and reporting frameworks in Power BI.</li>
+          <li>Partnered with cross-functional stakeholders to translate business questions into structured insights.</li>
+        </ul>
+        <p class="stack">Stack: <b>Python</b> · SQL · Power BI · BigQuery</p>
+      </div>
+      <div class="project-visual">
+        <div class="pipeline">
+          <span class="pipeline-node">Source</span>
+          <span class="pipeline-arrow">↓</span>
+          <span class="pipeline-node">Pipeline</span>
+          <span class="pipeline-arrow">↓</span>
+          <span class="pipeline-node">Dashboard</span>
+        </div>
+      </div>
+    </article>
+  </section>
+
+  <!-- ================= SKILLS ================= -->
+  <section id="skills">
+    <div class="section-head">
+      <h2 class="section-title">Skills</h2>
+      <span class="section-num">03</span>
+    </div>
+    <div class="skill-grid">
+      <div class="skill-card">
+        <svg class="skill-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M8 3H6a2 2 0 0 0-2 2v3a2 2 0 0 1-2 2 2 2 0 0 1 2 2v3a2 2 0 0 0 2 2h2M16 3h2a2 2 0 0 1 2 2v3a2 2 0 0 0 2 2 2 2 0 0 0-2 2v3a2 2 0 0 1-2 2h-2"/></svg>
+        <h3>Programming</h3>
+        <p>Python, SQL</p>
+      </div>
+      <div class="skill-card">
+        <svg class="skill-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="3"/><path d="M12 2v4M12 18v4M4.9 4.9l2.8 2.8M16.3 16.3l2.8 2.8M2 12h4M18 12h4M4.9 19.1l2.8-2.8M16.3 7.7l2.8-2.8"/></svg>
+        <h3>Machine Learning</h3>
+        <p>Regression, classification, feature engineering, model evaluation</p>
+      </div>
+      <div class="skill-card">
+        <svg class="skill-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 3v18h18"/><path d="M7 15l4-5 3 3 5-7"/></svg>
+        <h3>Data &amp; Reporting</h3>
+        <p>Power BI, Looker Studio, ETL, GCP BigQuery</p>
+      </div>
+      <div class="skill-card">
+        <svg class="skill-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
+        <h3>Tools</h3>
+        <p>Git, GitHub, Docker, MS Office</p>
+      </div>
+      <div class="skill-card">
+        <svg class="skill-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M18 10h-1.26A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z"/></svg>
+        <h3>Cloud</h3>
+        <p>Azure, GCP (foundational)</p>
+      </div>
+      <div class="skill-card">
+        <svg class="skill-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 2a10 10 0 1 0 10 10"/><path d="M12 2v10l7-7"/></svg>
+        <h3>Currently learning</h3>
+        <p>AI Engineering — API, MCP, RAG, LLM Ops, LangChain</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= EDUCATION ================= -->
+  <section id="education">
+    <div class="section-head">
+      <h2 class="section-title">Education</h2>
+      <span class="section-num">04</span>
+    </div>
+
+    <div class="edu-item">
+      <div class="edu-head">
+        <span class="edu-title">RWTH Aachen University</span>
+        <span class="edu-date">10.2024 – 10.2026</span>
+      </div>
+      <p class="edu-sub">M.Sc. Data Analytics and Decision Science · Note: 2,0 · Aachen Investment Club (AIC) — Quant Team</p>
+    </div>
+
+    <div class="edu-item">
+      <div class="edu-head">
+        <span class="edu-title">DBATU University</span>
+        <span class="edu-date">08.2017 – 08.2021</span>
+      </div>
+      <p class="edu-sub">Bachelor of Technology, Mechanical Engineering · 8.6/10 (German equivalent: 1,8)</p>
+    </div>
+
+    <div class="edu-item">
+      <div class="edu-head">
+        <span class="edu-title">CFA Institute</span>
+        <span class="edu-date">11.2023</span>
+      </div>
+      <p class="edu-sub">CFA Level I — prepared for and sat the exam. Curriculum: Equity Investments, Fixed Income, Derivatives, Portfolio Management, among others.</p>
+    </div>
+  </section>
+
+  <!-- ================= CONTACT ================= -->
+  <footer id="contact">
+    <h2 class="contact-title">Let's talk about what the data says.</h2>
+    <div class="contact-links">
+      <a href="mailto:vijayanshinde02@gmail.com">vijayanshinde02@gmail.com</a>
+      <a href="https://github.com/vijayanshinde" target="_blank" rel="noopener">github.com/vijayanshinde</a>
+      <!-- Add your LinkedIn URL here -->
+      <a href="#" target="_blank" rel="noopener">linkedin.com/in/ADD-YOUR-HANDLE</a>
+    </div>
+    <p class="foot-note">Aachen, Germany · Open to relocation</p>
+  </footer>
+
+</main>
+
+<script>
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  // Reveal project cards + trigger their inner visuals
+  const items = document.querySelectorAll('[data-reveal]');
+  function activateVisuals(card){
+    const gauge = card.querySelector('.gauge');
+    if(gauge){
+      const pct = parseFloat(gauge.dataset.gauge);
+      const fill = gauge.querySelector('.gauge-fill');
+      const circumference = 289; // 2*pi*46
+      const offset = circumference * (1 - pct/100);
+      requestAnimationFrame(()=> fill.style.strokeDashoffset = offset);
+    }
+    card.querySelectorAll('.compare-fill').forEach(bar=>{
+      const w = bar.dataset.width;
+      requestAnimationFrame(()=> bar.style.width = w + '%');
+    });
+  }
+  if ('IntersectionObserver' in window){
+    const io = new IntersectionObserver((entries)=>{
+      entries.forEach((e, i)=>{
+        if(e.isIntersecting){
+          setTimeout(()=>{ e.target.classList.add('in'); activateVisuals(e.target); }, i * 70);
+          io.unobserve(e.target);
+        }
+      });
+    }, { threshold:0.15 });
+    items.forEach(el=>io.observe(el));
+  } else {
+    items.forEach(el=>{ el.classList.add('in'); activateVisuals(el); });
+  }
+
+  // Animate hero motif lines drawing in
+  document.querySelectorAll('.hero-motif polyline').forEach(line=>{
+    if(reduceMotion) return;
+    const len = line.getTotalLength();
+    if(line.classList.contains('line-actual')) return;
+    line.style.strokeDasharray = len;
+    line.style.strokeDashoffset = len;
+    requestAnimationFrame(()=>{
+      requestAnimationFrame(()=>{ line.style.strokeDashoffset = 0; });
+    });
+  });
+
+  // Scrollspy for nav
+  const navLinks = document.querySelectorAll('[data-nav]');
+  const sections = ['work','skills','education','contact'].map(id=>document.getElementById(id));
+  if ('IntersectionObserver' in window){
+    const spy = new IntersectionObserver((entries)=>{
+      entries.forEach(entry=>{
+        const id = entry.target.getAttribute('id');
+        const link = document.querySelector('[data-nav][href="#'+id+'"]');
+        if(link && entry.isIntersecting){ navLinks.forEach(l=>l.classList.remove('active')); link.classList.add('active'); }
+      });
+    }, { rootMargin:'-40% 0px -50% 0px' });
+    sections.forEach(s=>{ if(s) spy.observe(s); });
+  }
+</script>
+
+</body>
+</html>
